@@ -1,5 +1,6 @@
 package com.princeworks.socketdrop.websocket.session;
 
+import org.springframework.stereotype.Component;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 // Which user belongs to which session?
 // Which session belongs to which user ?
 
+@Component
 public class SessionRegistry {
   ConcurrentMap<String, String> userToSession = new ConcurrentHashMap<>();
   ConcurrentMap<String, String> sessionToUser = new ConcurrentHashMap<>();
