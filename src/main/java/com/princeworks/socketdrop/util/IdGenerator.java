@@ -17,4 +17,8 @@ public final class IdGenerator {
   public static String generateRoomId() {
     return "room_" + generateRandomId();
   }
+
+  public static String generateUsername() {
+    return "username_" + generateRandomId();
+  }
 }

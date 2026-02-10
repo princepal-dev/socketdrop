@@ -1,6 +1,6 @@
 package com.princeworks.socketdrop.exception;
 
-import com.princeworks.socketdrop.util.Operation;
+import com.princeworks.socketdrop.helper.Operation;
 
 public class FileStorageException extends RuntimeException {
   public FileStorageException(String target, Operation operation, Throwable cause) {

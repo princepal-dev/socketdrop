@@ -1,10 +1,13 @@
 package com.princeworks.socketdrop.websocket.session;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+@Component
 public class RoomRegistry {
   ConcurrentMap<String, String> sessionToRoom = new ConcurrentHashMap<>();
   ConcurrentMap<String, Set<String>> roomToSessionId = new ConcurrentHashMap<>();
