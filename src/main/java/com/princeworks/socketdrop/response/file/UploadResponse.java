@@ -1,4 +1,4 @@
-package com.princeworks.socketdrop.security.response;
+package com.princeworks.socketdrop.response.file;
 
 public class UploadResponse {
     private String fileId;

@@ -3,7 +3,7 @@ package com.princeworks.socketdrop.controller;
 import com.princeworks.socketdrop.exception.ResourceNotFoundException;
 import com.princeworks.socketdrop.model.file.FileMeta;
 import com.princeworks.socketdrop.model.file.StoredFile;
-import com.princeworks.socketdrop.service.FileStorageService;
+import com.princeworks.socketdrop.service.files.storage.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;

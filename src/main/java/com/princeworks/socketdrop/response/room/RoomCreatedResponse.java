@@ -1,4 +1,4 @@
-package com.princeworks.socketdrop.security.response;
+package com.princeworks.socketdrop.response.room;
 
 import com.princeworks.socketdrop.helper.Type;
 

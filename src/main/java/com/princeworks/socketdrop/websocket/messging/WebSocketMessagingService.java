@@ -1,4 +1,4 @@
-package com.princeworks.socketdrop.service;
+package com.princeworks.socketdrop.websocket.messging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

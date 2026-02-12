@@ -1,11 +1,12 @@
-package com.princeworks.socketdrop.service;
+package com.princeworks.socketdrop.service.files.storage;
 
 import com.princeworks.socketdrop.exception.FileStorageException;
 import com.princeworks.socketdrop.exception.InvalidArgumentException;
 import com.princeworks.socketdrop.exception.ResourceNotFoundException;
 import com.princeworks.socketdrop.model.file.FileMeta;
 import com.princeworks.socketdrop.model.file.StoredFile;
-import com.princeworks.socketdrop.security.response.UploadResponse;
+import com.princeworks.socketdrop.response.file.UploadResponse;
+import com.princeworks.socketdrop.service.files.metadata.FileMetaDataRegistry;
 import com.princeworks.socketdrop.util.FileUtils;
 import com.princeworks.socketdrop.util.IdGenerator;
 import com.princeworks.socketdrop.helper.Operation;

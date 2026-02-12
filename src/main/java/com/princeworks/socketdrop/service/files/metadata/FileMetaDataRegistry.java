@@ -1,4 +1,4 @@
-package com.princeworks.socketdrop.service;
+package com.princeworks.socketdrop.service.files.metadata;
 
 import com.princeworks.socketdrop.model.file.FileMeta;
 

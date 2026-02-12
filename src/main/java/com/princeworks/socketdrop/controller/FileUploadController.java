@@ -1,8 +1,8 @@
 package com.princeworks.socketdrop.controller;
 
 import com.princeworks.socketdrop.exception.InvalidArgumentException;
-import com.princeworks.socketdrop.security.response.UploadResponse;
-import com.princeworks.socketdrop.service.FileStorageService;
+import com.princeworks.socketdrop.response.file.UploadResponse;
+import com.princeworks.socketdrop.service.files.storage.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,7 +1,7 @@
-package com.princeworks.socketdrop.service;
+package com.princeworks.socketdrop.service.files.storage;
 
 import com.princeworks.socketdrop.model.file.StoredFile;
-import com.princeworks.socketdrop.security.response.UploadResponse;
+import com.princeworks.socketdrop.response.file.UploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface FileStorageService {
