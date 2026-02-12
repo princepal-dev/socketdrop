@@ -1,5 +1,6 @@
 package com.princeworks.socketdrop.websocket.session;
 
+import com.princeworks.socketdrop.model.user.UserSessionInfo;
 import org.springframework.stereotype.Component;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -11,26 +12,21 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class SessionRegistry {
-  ConcurrentMap<String, String> userToSession = new ConcurrentHashMap<>();
-  ConcurrentMap<String, String> sessionToUser = new ConcurrentHashMap<>();
+  ConcurrentMap<String, UserSessionInfo> sessionToUser = new ConcurrentHashMap<>();
 
-  public void register(String userName, String sessionId) {
-    sessionToUser.put(sessionId, userName);
-    userToSession.put(userName, sessionId);
+  public void register(String sessionId, UserSessionInfo userInfo) {
+    sessionToUser.put(sessionId, userInfo);
   }
 
   public void unregister(String sessionId) {
-    String user = sessionToUser.remove(sessionId);
-    if (user != null) {
-      userToSession.remove(user);
-    }
+    sessionToUser.remove(sessionId);
   }
 
-  public String getUser(String sessionId) {
+  public UserSessionInfo getUserName(String sessionId) {
     return sessionToUser.get(sessionId);
   }
 
-  public String getSessionId(String userName) {
-    return userToSession.get(userName);
+  public boolean isRegistered(String sessionId) {
+    return sessionToUser.containsKey(sessionId);
   }
 }

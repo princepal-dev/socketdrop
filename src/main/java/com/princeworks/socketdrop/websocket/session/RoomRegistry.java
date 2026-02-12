@@ -53,6 +53,10 @@ public class RoomRegistry {
     return sessionToRoom.get(sessionId);
   }
 
+  public boolean roomExists(String roomId) {
+    return roomToSessionId.containsKey(roomId);
+  }
+
   public Set<String> getSessions(String roomId) {
     Set<String> sessions = roomToSessionId.get(roomId);
     return sessions == null ? Collections.emptySet() : Collections.unmodifiableSet(sessions);

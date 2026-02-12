@@ -3,7 +3,11 @@ package com.princeworks.socketdrop.websocket.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.princeworks.socketdrop.model.message.BaseMessage;
+import com.princeworks.socketdrop.model.message.CreateRoomMessage;
 import com.princeworks.socketdrop.model.message.JoinRoomMessage;
+import com.princeworks.socketdrop.model.user.UserSessionInfo;
+import com.princeworks.socketdrop.security.response.RoomCreatedResponse;
+import com.princeworks.socketdrop.service.WebSocketMessagingService;
 import com.princeworks.socketdrop.util.IdGenerator;
 import com.princeworks.socketdrop.websocket.session.RoomRegistry;
 import com.princeworks.socketdrop.websocket.session.SessionRegistry;
@@ -23,6 +27,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
   @Autowired private RoomRegistry roomRegistry;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private SessionRegistry sessionRegistry;
+  @Autowired private WebSocketMessagingService webSocketMessagingService;
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
@@ -34,6 +39,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
   public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
     String sessionId = session.getId();
     logger.info("WS DISCONNECTED : {}", sessionId);
+    roomRegistry.leaveRoom(sessionId);
     sessionRegistry.unregister(sessionId);
   }
 
@@ -42,6 +48,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     String sessionId = session.getId();
     logger.error(
         "ERROR while connecting to : {}, error message :{}", sessionId, exception.getMessage());
+    roomRegistry.leaveRoom(sessionId);
     sessionRegistry.unregister(sessionId);
   }
 
@@ -59,8 +66,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
       switch (baseMessage.getType()) {
         case CREATE_ROOM:
-          // Todo : Don't Allow the user to create room id's create it from the server and send it
-          // back to the client
+          CreateRoomMessage createRoomMessage =
+              objectMapper.readValue(message.getPayload(), CreateRoomMessage.class);
+          handleCreateRoom(session, createRoomMessage);
           break;
         case JOIN_ROOM:
           JoinRoomMessage joinRoomMessage =
@@ -80,19 +88,52 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     }
   }
 
-  private void handleCreateRoom() {}
+  private void handleCreateRoom(WebSocketSession session, CreateRoomMessage msg) {
+    String sessionId = session.getId();
+    String displayName = msg.getDisplayName();
+
+    if (displayName == null || displayName.isBlank()) {
+      logger.warn("Display name cannot be blank");
+      return;
+    }
+
+    if (sessionRegistry.isRegistered(sessionId)) {
+      logger.warn("Session {} already registered", sessionId);
+      return;
+    }
+
+    String roomId = IdGenerator.generateRoomId();
+    String userId = IdGenerator.generateUsername();
+
+    sessionRegistry.register(sessionId, new UserSessionInfo(userId, displayName));
+    roomRegistry.joinRoom(sessionId, roomId);
+
+    webSocketMessagingService.sendToSession(session, new RoomCreatedResponse(roomId));
+    logger.info("Room id created : {} successfully!", roomId);
+  }
 
   private void handleJoinRoom(WebSocketSession session, JoinRoomMessage msg) {
     String roomId = msg.getRoomId();
     String sessionId = session.getId();
-    String userName = IdGenerator.generateUsername();
+    String userId = IdGenerator.generateUsername();
+    UserSessionInfo userInfo = new UserSessionInfo(userId, msg.getDisplayName());
+
+    if (!roomRegistry.roomExists(roomId)) {
+      logger.warn("You are trying to join a room id : {} which doesn't exist", roomId);
+      return;
+    }
+
+    if (sessionRegistry.isRegistered(sessionId)) {
+      logger.warn("Session {} already registered", sessionId);
+      return;
+    }
 
     // Logging the info
     logger.info(
-        "JOIN_ROOM from session : {}, username : {}, room id : {}", sessionId, userName, roomId);
+        "JOIN_ROOM from session : {}, user id : {}, room id : {}", sessionId, userId, roomId);
 
     // Registering rooms & username to a particular session
-    sessionRegistry.register(userName, sessionId);
+    sessionRegistry.register(sessionId, userInfo);
     roomRegistry.joinRoom(sessionId, roomId);
 
     // Logging success
