@@ -19,4 +19,14 @@ public class FileMetaDataRegistryImpl implements FileMetaDataRegistry {
     public FileMeta getDataFromRegistry(String fileId) {
         return fileRegistry.get(fileId);
     }
+
+    @Override
+    public FileMeta removeDataFromRegistry(String fileId) {
+        return fileRegistry.remove(fileId);
+    }
+
+    @Override
+    public boolean contains(String fileId) {
+        return fileRegistry.containsKey(fileId);
+    }
 }

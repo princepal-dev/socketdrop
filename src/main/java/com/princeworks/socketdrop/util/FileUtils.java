@@ -1,6 +1,7 @@
 package com.princeworks.socketdrop.util;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public final class FileUtils {
   private FileUtils() {}
@@ -10,6 +11,6 @@ public final class FileUtils {
   }
 
   public static Path generatePath(String baseDirectory, String fileId) {
-    return Path.of(baseDirectory, fileId);
+    return Paths.get(baseDirectory, fileId);
   }
 }

@@ -4,5 +4,8 @@ public enum Type {
     JOIN_ROOM,
     LEAVE_ROOM,
     CREATE_ROOM,
-    ROOM_CREATED
+    ROOM_CREATED,
+    ROOM_JOINED,
+    UPLOAD_PROGRESS,
+    ERROR
 }

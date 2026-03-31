@@ -38,4 +38,14 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(ForbiddenOperationException.class)
+  public ResponseEntity<Map<String, Object>> forbiddenOperationException(
+      ForbiddenOperationException e) {
+    Map<String, Object> error = new HashMap<>();
+    error.put("message", e.getMessage());
+    error.put("timestamp", TimeUtils.now());
+
+    return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+  }
 }

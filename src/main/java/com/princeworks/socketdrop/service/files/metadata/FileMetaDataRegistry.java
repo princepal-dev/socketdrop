@@ -3,6 +3,11 @@ package com.princeworks.socketdrop.service.files.metadata;
 import com.princeworks.socketdrop.model.file.FileMeta;
 
 public interface FileMetaDataRegistry {
-  public FileMeta getDataFromRegistry(String fileId);
-  public void addRegistry(String fileId, FileMeta metaData);
+  FileMeta getDataFromRegistry(String fileId);
+
+  void addRegistry(String fileId, FileMeta metaData);
+
+  FileMeta removeDataFromRegistry(String fileId);
+
+  boolean contains(String fileId);
 }

@@ -1,16 +1,5 @@
 package com.princeworks.socketdrop.websocket.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.princeworks.socketdrop.model.message.BaseMessage;
-import com.princeworks.socketdrop.model.message.CreateRoomMessage;
-import com.princeworks.socketdrop.model.message.JoinRoomMessage;
-import com.princeworks.socketdrop.model.user.UserSessionInfo;
-import com.princeworks.socketdrop.response.room.RoomCreatedResponse;
-import com.princeworks.socketdrop.websocket.messging.WebSocketMessagingService;
-import com.princeworks.socketdrop.util.IdGenerator;
-import com.princeworks.socketdrop.websocket.session.RoomRegistry;
-import com.princeworks.socketdrop.websocket.session.SessionRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +9,23 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.princeworks.socketdrop.model.message.BaseMessage;
+import com.princeworks.socketdrop.model.message.CreateRoomMessage;
+import com.princeworks.socketdrop.model.message.JoinRoomMessage;
+import com.princeworks.socketdrop.model.user.UserSessionInfo;
+import com.princeworks.socketdrop.response.room.ErrorResponse;
+import com.princeworks.socketdrop.response.room.RoomCreatedResponse;
+import com.princeworks.socketdrop.response.room.RoomJoinedResponse;
+import com.princeworks.socketdrop.util.IdGenerator;
+import com.princeworks.socketdrop.websocket.messging.WebSocketMessagingService;
+import com.princeworks.socketdrop.websocket.session.RoomRegistry;
+import com.princeworks.socketdrop.websocket.session.SessionRegistry;
+
 @Component
 public class RoomWebSocketHandler extends TextWebSocketHandler {
+
   private static final Logger logger = LoggerFactory.getLogger(RoomWebSocketHandler.class);
 
   @Autowired private RoomRegistry roomRegistry;
@@ -32,6 +36,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
     String sessionId = session.getId();
+    sessionRegistry.registerSocket(session);
     logger.info("WS CONNECTED : {}", sessionId);
   }
 
@@ -61,6 +66,7 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
       if (baseMessage.getType() == null) {
         logger.info(
             "No TYPE is found in the session {} & payload {}", sessionId, message.getPayload());
+        sendError(session, "Missing message type");
         return;
       }
 
@@ -80,11 +86,12 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
           break;
         default:
           logger.info("Invalid TYPE provided!");
+          sendError(session, "Unsupported message type");
       }
 
     } catch (JsonProcessingException e) {
       logger.error("ERROR in Json processing : {}", e.getMessage());
-      return;
+      sendError(session, "Malformed message payload");
     }
   }
 
@@ -92,13 +99,15 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     String sessionId = session.getId();
     String displayName = msg.getDisplayName();
 
-    if (displayName == null || displayName.isBlank()) {
+    if (displayName == null || displayName.trim().isEmpty()) {
       logger.warn("Display name cannot be blank");
+      sendError(session, "displayName is required");
       return;
     }
 
     if (sessionRegistry.isRegistered(sessionId)) {
       logger.warn("Session {} already registered", sessionId);
+      sendError(session, "Session is already in a room");
       return;
     }
 
@@ -108,7 +117,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     sessionRegistry.register(sessionId, new UserSessionInfo(userId, displayName));
     roomRegistry.joinRoom(sessionId, roomId);
 
-    webSocketMessagingService.sendToSession(session, new RoomCreatedResponse(roomId));
+        webSocketMessagingService.sendToSession(
+                session, new RoomCreatedResponse(roomId, userId, displayName));
     logger.info("Room id created : {} successfully!", roomId);
   }
 
@@ -120,11 +130,19 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     if (!roomRegistry.roomExists(roomId)) {
       logger.warn("You are trying to join a room id : {} which doesn't exist", roomId);
+      sendError(session, "Room does not exist");
+      return;
+    }
+
+    if (msg.getDisplayName() == null || msg.getDisplayName().trim().isEmpty()) {
+      logger.warn("Display name cannot be blank");
+      sendError(session, "displayName is required");
       return;
     }
 
     if (sessionRegistry.isRegistered(sessionId)) {
       logger.warn("Session {} already registered", sessionId);
+      sendError(session, "Session is already in a room");
       return;
     }
 
@@ -135,6 +153,8 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
     // Registering rooms & username to a particular session
     sessionRegistry.register(sessionId, userInfo);
     roomRegistry.joinRoom(sessionId, roomId);
+    webSocketMessagingService.sendToSession(
+        session, new RoomJoinedResponse(roomId, userInfo.getUserId(), userInfo.getDisplayName()));
 
     // Logging success
     logger.info("Room id : {} joined successfully!", roomId);
@@ -149,5 +169,9 @@ public class RoomWebSocketHandler extends TextWebSocketHandler {
 
     // Logging you have left room successfully
     logger.info("Session id : {} cleared successfully", sessionId);
+  }
+
+  private void sendError(WebSocketSession session, String message) {
+    webSocketMessagingService.sendToSession(session, new ErrorResponse(message));
   }
 }

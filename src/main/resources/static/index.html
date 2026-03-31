@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SocketDrop</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="hero card">
+        <div>
+          <h1>SocketDrop</h1>
+          <p class="subtitle">Room-first real-time file sharing</p>
+        </div>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
+          Light mode
+        </button>
+      </header>
+
+      <section class="card status-grid">
+        <article>
+          <p class="status-label">Connection</p>
+          <p id="wsStatus" class="status-pill disconnected">Disconnected</p>
+        </article>
+        <article>
+          <p class="status-label">Current Room</p>
+          <p id="currentRoom" class="status-value">-</p>
+        </article>
+        <article>
+          <p class="status-label">Current User</p>
+          <p id="currentUser" class="status-value">-</p>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Start Here</h2>
+        <p id="joinHint" class="hint">Create or join a room to unlock uploads and downloads.</p>
+        <p id="roomPrompt" class="prompt">Step 1: Connect. Step 2: Create a room or join one.</p>
+
+        <div class="row">
+          <label for="displayName">Display Name</label>
+          <input id="displayName" type="text" placeholder="alice" />
+        </div>
+        <div class="row">
+          <label for="roomId">Room ID</label>
+          <input id="roomId" type="text" placeholder="room_xxx" />
+        </div>
+        <div class="actions">
+          <button id="connectBtn" type="button">Connect</button>
+          <button id="createRoomBtn" type="button">Create Room</button>
+          <button id="joinRoomBtn" type="button">Join Room</button>
+          <button id="leaveRoomBtn" type="button">Leave Room</button>
+        </div>
+      </section>
+
+      <section id="fileActionsSection" class="card" hidden>
+        <h2>File Actions</h2>
+        <div class="split-grid">
+          <article class="sub-card">
+            <h3>Upload</h3>
+            <div class="row compact">
+              <label for="uploadFile">File</label>
+              <input id="uploadFile" type="file" />
+            </div>
+            <div class="actions">
+              <button id="uploadBtn" type="button">Upload File</button>
+            </div>
+          </article>
+
+          <article class="sub-card">
+            <h3>Download / Delete</h3>
+            <div class="row compact">
+              <label for="fileIdInput">File ID</label>
+              <input id="fileIdInput" type="text" placeholder="file_xxx" />
+            </div>
+            <div class="actions">
+              <button id="downloadBtn" type="button">Download</button>
+              <button id="deleteBtn" type="button" class="danger">Delete</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="log-header">
+          <h2>Event Log</h2>
+          <button id="clearLogBtn" type="button">Clear</button>
+        </div>
+        <pre id="log" class="log"></pre>
+      </section>
+
+      <footer class="site-footer">
+        Created by Prince Pal with love. LinkedIn:
+        <a href="https://www.linkedin.com/in/princepal-dev/" target="_blank" rel="noopener noreferrer"
+          >https://www.linkedin.com/in/princepal-dev/</a
+        >
+      </footer>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
+

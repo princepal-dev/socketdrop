@@ -1,7 +1,9 @@
 package com.princeworks.socketdrop.model.message;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.princeworks.socketdrop.helper.Type;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BaseMessage{
     private Type type;
 

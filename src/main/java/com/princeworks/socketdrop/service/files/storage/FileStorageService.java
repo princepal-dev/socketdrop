@@ -5,6 +5,7 @@ import com.princeworks.socketdrop.response.file.UploadResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface FileStorageService {
-    UploadResponse uploadFile(MultipartFile file);
+    UploadResponse uploadFile(MultipartFile file, String roomId);
     StoredFile downloadFile(String fileId);
+    void deleteFile(String fileId);
 }

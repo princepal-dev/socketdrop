@@ -6,6 +6,7 @@ import com.princeworks.socketdrop.exception.ResourceNotFoundException;
 import com.princeworks.socketdrop.model.file.FileMeta;
 import com.princeworks.socketdrop.model.file.StoredFile;
 import com.princeworks.socketdrop.response.file.UploadResponse;
+import com.princeworks.socketdrop.service.files.cleanup.FileCleanupService;
 import com.princeworks.socketdrop.service.files.metadata.FileMetaDataRegistry;
 import com.princeworks.socketdrop.util.FileUtils;
 import com.princeworks.socketdrop.util.IdGenerator;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
@@ -28,9 +30,10 @@ public class FileStorageServiceImpl implements FileStorageService {
   private String basePath;
 
   @Autowired private FileMetaDataRegistry fileMetaDataRegistry;
+  @Autowired private FileCleanupService fileCleanupService;
 
   @Override
-  public UploadResponse uploadFile(MultipartFile file) {
+  public UploadResponse uploadFile(MultipartFile file, String roomId) {
     if (!FileUtils.sizeCheck(file.getSize(), allowedSize)) {
       throw new InvalidArgumentException("You have exceeded the upload size limit", "uploadFile");
     }
@@ -40,7 +43,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     try {
       // ensure base path exists
-      Path baseDir = Path.of(basePath);
+      Path baseDir = Paths.get(basePath);
       Files.createDirectories(baseDir);
 
       // resolve file path
@@ -53,7 +56,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     fileMetaDataRegistry.addRegistry(
-        fileId, new FileMeta(fileId, file.getSize(), originalFileName));
+        fileId, new FileMeta(fileId, file.getSize(), originalFileName, roomId));
 
     UploadResponse response = new UploadResponse();
     response.setFileId(fileId);
@@ -65,7 +68,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
   @Override
   public StoredFile downloadFile(String fileId) {
-    Path filePath = Path.of(basePath).resolve(fileId);
+    Path filePath = Paths.get(basePath).resolve(fileId);
 
     if (!Files.exists(filePath)) {
       throw new ResourceNotFoundException("File", "file id", fileId);
@@ -78,10 +81,18 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     try {
       FileMeta metadata = fileMetaDataRegistry.getDataFromRegistry(fileId);
+      if (metadata == null) {
+        throw new ResourceNotFoundException("File metadata", "file id", fileId);
+      }
       return new StoredFile(
               metadata, new InputStreamResource(Files.newInputStream(filePath)));
     } catch (IOException e) {
       throw new FileStorageException(filePath.toString(), Operation.READ, e);
     }
+  }
+
+  @Override
+  public void deleteFile(String fileId) {
+    fileCleanupService.cleanupFile(fileId);
   }
 }
