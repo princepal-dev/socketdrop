@@ -1,0 +1,18 @@
+.git
+.gitignore
+.idea
+.DS_Store
+
+# Build output
+target
+
+# Local runtime storage
+storage
+
+# Maven caches and wrapper output
+.mvn/wrapper/maven-wrapper.jar
+
+# Optional local env files
+.env
+.env.*
+

@@ -46,10 +46,29 @@ Users connect via WebSockets, join rooms, and share files with live progress upd
 - No database
 - Designed for learning and demonstration purposes
 
+## Containerized Run
+
+### Build and run with Docker
+```bash
+docker build -t socket-drop:latest .
+docker run --rm -p 8080:8080 -v socket_drop_storage:/app/storage socket-drop:latest
+```
+
+### Run with Docker Compose
+```bash
+docker compose up --build
+```
+
+### Container environment variables
+- `SPRING_FILE_BASE_PATH` (default: `/app/storage`)
+- `SPRING_FILE_MAX_SIZE` (default in app: `524288000`)
+- `SPRING_FILE_MAX_DOWNLOAD_SIZE` (default in app: `52428800`)
+- `SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE` (default: `50MB`)
+- `SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE` (default: `50MB`)
+
 ## Author
 **Prince Pal**
 
 Created by Prince Pal with love.
 
 LinkedIn: https://www.linkedin.com/in/princepal-dev/
-
